@@ -1,0 +1,106 @@
+org: ipj31
+app: cloud-note
+service: cloud-note
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  stage: v1
+  region: us-west-1
+  httpApi:
+    cors: true
+
+package:
+  individually: true
+  patterns:
+    - "!cloud-note-ui/**"
+    - "!.serverless/**"
+    - "!lambdas/**"
+
+functions:
+  create-note:
+    name: create-note
+    handler: lambdas/create.handler
+    package:
+      patterns:
+        - "lambdas/create.py"
+    events:
+      - httpApi:
+          method: POST
+          path: /${sls:stage}/create
+  # TODO: fix paths to add path vars
+  read-note:
+    name: read-note
+    handler: lambdas/read.handler
+    package:
+      patterns:
+        - "lambdas/read.py"
+    events:
+      - httpApi:
+          method: GET
+          path: /${sls:stage}/read
+  update-note:
+    name: update-note
+    handler: lambdas/update.handler
+    package:
+      patterns:
+        - "lambdas/update.py"
+    events:
+      - httpApi:
+          method: PATCH
+          path: /${sls:stage}/update
+  delete-note:
+    name: delete-note
+    handler: lambdas/delete.handler
+    package:
+      patterns:
+        - "lambdas/delete.py"
+    events:
+      - httpApi:
+          method: DELETE
+          path: /${sls:stage}/delete
+
+resources:
+  Resources:
+    NotesDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: notes-${sls:stage}
+        AttributeDefinitions:
+          - AttributeName: noteId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: noteId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    UsersCognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UsernameAttributes:
+          - email
+          - phone_number
+        AutoVerifiedAttributes:
+          - email
+    UsersCognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        UserPoolId:
+          Ref: UsersCognitoUserPool
+            # Fn::Join:
+            #   - ""
+            #   - - "https://cognito-idp."
+            #     - "${opt:region, self:provider.region}"
+            #     - ".amazonaws.com/"
+            #     - Ref: UsersCognitoUserPool 
+  
+  Outputs:
+    UserPool:
+      Value:
+        Ref: UsersCognitoUserPool
+    UserPoolClient:
+      Value:
+        Ref: UsersCognitoUserPoolClient
