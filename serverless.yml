@@ -11,6 +11,19 @@ provider:
   region: us-west-1
   httpApi:
     cors: true
+    authorizers:
+      jwtAuth:
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/us-west-1_8ZRLJsPlM
+        audience:
+          - 3b7j4ldaj1b8n52ge2u6uqrenp
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 
+            - dynamodb:*
+          Resource: "*"
 
 package:
   individually: true
@@ -29,10 +42,11 @@ functions:
     events:
       - httpApi:
           method: POST
-          path: /${sls:stage}/create
-  # TODO: fix paths to add path vars
-  read-note:
-    name: read-note
+          path: /${sls:stage}/note/{noteId}
+          authorizer: 
+            name: jwtAuth
+  read-notes:
+    name: read-notes
     handler: lambdas/read.handler
     package:
       patterns:
@@ -40,17 +54,9 @@ functions:
     events:
       - httpApi:
           method: GET
-          path: /${sls:stage}/read
-  update-note:
-    name: update-note
-    handler: lambdas/update.handler
-    package:
-      patterns:
-        - "lambdas/update.py"
-    events:
-      - httpApi:
-          method: PATCH
-          path: /${sls:stage}/update
+          path: /${sls:stage}/note
+          authorizer: 
+            name: jwtAuth
   delete-note:
     name: delete-note
     handler: lambdas/delete.handler
@@ -60,10 +66,13 @@ functions:
     events:
       - httpApi:
           method: DELETE
-          path: /${sls:stage}/delete
+          path: /${sls:stage}/note/{noteId}
+          authorizer: 
+            name: jwtAuth
 
 resources:
   Resources:
+    # Notes Table
     NotesDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -71,12 +80,27 @@ resources:
         AttributeDefinitions:
           - AttributeName: noteId
             AttributeType: S
+          - AttributeName: email
+            AttributeType: S
         KeySchema:
           - AttributeName: noteId
             KeyType: HASH
+          - AttributeName: email
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: emailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+    # User pool
     UsersCognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -85,17 +109,12 @@ resources:
           - phone_number
         AutoVerifiedAttributes:
           - email
+    # User pool client
     UsersCognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
         UserPoolId:
           Ref: UsersCognitoUserPool
-            # Fn::Join:
-            #   - ""
-            #   - - "https://cognito-idp."
-            #     - "${opt:region, self:provider.region}"
-            #     - ".amazonaws.com/"
-            #     - Ref: UsersCognitoUserPool 
   
   Outputs:
     UserPool:

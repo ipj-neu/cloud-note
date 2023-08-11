@@ -1,4 +1,4 @@
-from boto3 import resource
+import boto3
 import json
 import logging
 
@@ -7,11 +7,19 @@ logger.setLevel(logging.INFO)
 
 def handler(event, context):
     try:
-        logger.info(event)
-        logger.info(context)
+        email = event["requestContext"]["authorizer"]["jwt"]["claims"]["email"]
+
+        notes = boto3.resource("dynamodb").Table("notes-v1").query(
+            IndexName="emailIndex",
+            KeyConditionExpression="email = :email",
+            ExpressionAttributeValues={":email": email}
+        ).get("Items", [])
+
+        logger.info(notes)
+
         return {
             "statusCode": 200,
-            "body": json.dumps({"msg": "pong"})
+            "body": json.dumps(notes)
         }
     except Exception as e:
         logger.exception(getattr(e, "message", repr(e)))

@@ -13,11 +13,11 @@
     },
     "categories": {
       "auth": {
-        "cloudnoteui589115f4": {
-          "userPoolId": "us-west-1_Mo6orpK20",
-          "userPoolName": "UsersCognitoUserPool-4dsrLd6QLzEM",
-          "webClientId": "5gm6duh6oacn3rfk8j4u8i5p4q",
-          "nativeClientId": "5gm6duh6oacn3rfk8j4u8i5p4q"
+        "cloudnoteuifa909444": {
+          "userPoolId": "us-west-1_8ZRLJsPlM",
+          "userPoolName": "UsersCognitoUserPool-YwNB0zSbMFyp",
+          "webClientId": "3b7j4ldaj1b8n52ge2u6uqrenp",
+          "nativeClientId": "3b7j4ldaj1b8n52ge2u6uqrenp"
         }
       }
     }

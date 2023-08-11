@@ -1,6 +1,6 @@
 {
   "auth": {
-    "cloudnoteui589115f4": {
+    "cloudnoteuifa909444": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,35 +9,35 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_cloudnoteui589115f4_nativeClientId": {
+    "AMPLIFY_auth_cloudnoteuifa909444_nativeClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "cloudnoteui589115f4"
+          "resourceName": "cloudnoteuifa909444"
         }
       ]
     },
-    "AMPLIFY_auth_cloudnoteui589115f4_userPoolId": {
+    "AMPLIFY_auth_cloudnoteuifa909444_userPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "cloudnoteui589115f4"
+          "resourceName": "cloudnoteuifa909444"
         }
       ]
     },
-    "AMPLIFY_auth_cloudnoteui589115f4_userPoolName": {
+    "AMPLIFY_auth_cloudnoteuifa909444_userPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "cloudnoteui589115f4"
+          "resourceName": "cloudnoteuifa909444"
         }
       ]
     },
-    "AMPLIFY_auth_cloudnoteui589115f4_webClientId": {
+    "AMPLIFY_auth_cloudnoteuifa909444_webClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "cloudnoteui589115f4"
+          "resourceName": "cloudnoteuifa909444"
         }
       ]
     }
