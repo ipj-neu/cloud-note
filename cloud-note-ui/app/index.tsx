@@ -9,39 +9,6 @@ import { domain } from "@/constants/Domain";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuthenticator } from "@aws-amplify/ui-react-native";
 
-const RenderDelete = ({noteId}: {noteId: string}) => {
-
-    // change to remove for change state and update async storage to avoid another request
-
-    const deleteNote = async () => {
-        const res = await fetch(`${domain}/note/${noteId}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken()
-            }
-        })
-        console.log(res.status)
-    }
-
-    return (
-        <TouchableOpacity style={style.delete} onPress={deleteNote}>
-            <Icon color="white" name="delete-outline" type="material" size={40} />
-        </TouchableOpacity>
-    )    
-}
-
-const ListItem = ({note}: {note: Note}) => {
-    return (
-        <Swipeable renderRightActions={() => <RenderDelete noteId={note.noteId} />}>
-            <Link href={`/note/${note.noteId}`} asChild>
-                <Pressable style={style.item}>
-                    <Text style={style.title}>{note.title}</Text>
-                    <Text numberOfLines={1} style={style.content}>{note.note}</Text>
-                </Pressable>
-            </Link>
-        </Swipeable>
-    );
-}
 
 const Logout = ({signOut}: {signOut: () => void}) => {
     return (
@@ -61,6 +28,46 @@ const MainPage = () => {
     const {signOut} = useAuthenticator()
     const [notes, setNotes] = useState<Note[]>([])
     const [loading, setLoading] = useState(false)
+
+    const RenderDelete = ({noteId}: {noteId: string}) => {
+
+        // change to remove for change state and update async storage to avoid another request
+
+        const deleteNote = async () => {
+            console.log("deleting...")
+            setNotes((prev) => prev.filter((note) => note.noteId !== noteId))
+            const res = await fetch(`${domain}/note/${noteId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken()
+                }
+            })
+            console.log(res.status)
+            await AsyncStorage.setItem(
+                "notes",
+                JSON.stringify(notes)
+            )
+        }
+
+        return (
+            <TouchableOpacity style={style.delete} onPress={deleteNote}>
+                <Icon color="white" name="delete-outline" type="material" size={40} />
+            </TouchableOpacity>
+        )    
+    }
+
+    const ListItem = ({note}: {note: Note}) => {
+        return (
+            <Swipeable renderRightActions={() => <RenderDelete noteId={note.noteId} />}>
+                <Link href={`/note/${note.noteId}`} asChild>
+                    <Pressable style={style.item}>
+                        <Text style={style.title}>{note.title}</Text>
+                        <Text numberOfLines={1} style={style.content}>{note.note}</Text>
+                    </Pressable>
+                </Link>
+            </Swipeable>
+        );
+    }
 
     const updateNotes = async () => {
         setLoading(true)
