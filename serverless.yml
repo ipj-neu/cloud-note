@@ -14,7 +14,8 @@ provider:
     authorizers:
       jwtAuth:
         identitySource: $request.header.Authorization
-        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/us-west-1_8ZRLJsPlM
+        # todo break out the cognito creation into another serverless file and make this referance the output
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/ #cognito id here
         audience:
           - 3b7j4ldaj1b8n52ge2u6uqrenp
   iam:
